@@ -30,6 +30,7 @@ const Reaction = new Schema(
   {
     _id: false,
     id: false,
+    toObject: {virtuals: true, getters: true},
     toJSON: {getters: true},
   }
 );
@@ -41,11 +42,12 @@ const Thought = new Schema(
   },
   {
     id: false,
+    toObject: {virtuals: true, getters: true},
     toJSON: {virtuals: true, getters: true},
   }
 );
 
-Thought.virtual('reactionCount', function () {
+Thought.virtual('reactionCount').get(function () {
   return this.reactions.length;
 });
 

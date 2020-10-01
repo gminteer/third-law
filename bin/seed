@@ -7,24 +7,70 @@ const models = require('../models');
 const errors = require('../errors');
 const services = require('../services')(models, errors);
 
-mongoose.connect(process.env.MONGODB_URI, {useFindAndModify: false, useNewUrlParser: true, useUnifiedTopology: true});
+mongoose.connect(process.env.MONGODB_URI, {
+  useFindAndModify: false,
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 mongoose.set('debug', true);
 
 const FAKE_USER_COUNT = 8;
-const FAKE_THOUGHT_COUNT = 16;
+const FAKE_USER_VARIANCE = 6;
+const FAKE_THOUGHT_COUNT = 8;
+const FAKE_THOUGHT_VARIANCE = 6;
+const FAKE_REACTION_COUNT = 8;
+const FAKE_REACTION_VARIANCE = 6;
+const FAKE_FRIEND_COUNT = 4;
+const FAKE_FRIEND_VARIANCE = 4;
+
 (async () => {
-  for (let i = 0; i < FAKE_USER_COUNT; i++) {
+  const users = [];
+  const thoughts = [];
+  for (
+    let i = Math.floor(Math.random() * FAKE_USER_VARIANCE);
+    i < FAKE_USER_COUNT + Math.floor(Math.random() * FAKE_USER_VARIANCE);
+    i++
+  ) {
     const username = faker.internet.userName();
-    await services.user.create({
+    const user = await services.user.create({
       username,
       email: faker.internet.email(),
     });
-    for (let j = 0; j < FAKE_THOUGHT_COUNT; j++) {
-      await services.thought.createThought({
+    users.push(user);
+    for (
+      let j = Math.floor(Math.random() * FAKE_THOUGHT_VARIANCE);
+      j < FAKE_THOUGHT_COUNT + Math.floor(Math.random() * FAKE_THOUGHT_VARIANCE);
+      j++
+    ) {
+      const thought = await services.thought.createThought({
         username,
         body: faker.lorem.sentence(),
       });
+      thoughts.push(thought);
     }
+  }
+  for (const thought of thoughts) {
+    for (
+      let i = Math.floor(Math.random() * FAKE_REACTION_VARIANCE);
+      i < FAKE_REACTION_COUNT + Math.floor(Math.random() * FAKE_REACTION_VARIANCE);
+      i++
+    ) {
+      thought.reactions.push({
+        username: users[Math.floor(Math.random() * users.length)].username,
+        body: faker.lorem.words(),
+      });
+    }
+    await thought.save();
+  }
+  for (const user of users) {
+    for (
+      let i = Math.floor(Math.random() * FAKE_FRIEND_VARIANCE);
+      i < FAKE_FRIEND_COUNT + Math.floor(Math.random() * FAKE_FRIEND_VARIANCE);
+      i++
+    )
+      user.friends.push(users[Math.floor(Math.random() * users.length)]._id);
+
+    await user.save();
   }
   await mongoose.connection.close();
 })();

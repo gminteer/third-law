@@ -4,6 +4,7 @@ module.exports = ({User, Thought}, {NotFoundError}) => ({
   async getAll() {
     const thoughts = await Thought.find();
     if (thoughts.length < 1) throw new NotFoundError('thoughts');
+    return thoughts;
   },
 
   async getById(thoughtId) {

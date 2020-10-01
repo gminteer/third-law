@@ -1,6 +1,6 @@
 const WRITABLE = ['username', 'email'];
 
-module.exports = ({User}, {NotFoundError, DuplicateError}) => ({
+module.exports = ({User, Thought}, {NotFoundError, DuplicateError}) => ({
   async getAll() {
     const users = await User.find();
     if (users.length < 1) throw new NotFoundError('users');
@@ -34,8 +34,9 @@ module.exports = ({User}, {NotFoundError, DuplicateError}) => ({
   },
 
   async delete(userId) {
-    const user = await User.findbyIdAndDelete(userId);
+    const user = await User.findByIdAndDelete(userId);
     if (!user) throw new NotFoundError('users', '_id', userId);
+    for (const thoughtId of user.thoughts) await Thought.findByIdAndDelete(thoughtId);
     return user;
   },
 
