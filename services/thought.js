@@ -23,4 +23,16 @@ module.exports = ({User, Thought}, {NotFoundError}) => ({
     const thought = await Thought.findByIdAndUpdate({_id}, sanitizedData, {new: true, runValidators: true});
     return thought;
   },
+
+  async createReaction(thoughtId, data) {
+    if (!data) return;
+    const user = await User.findOne({username: data.username});
+    if (!user) throw new NotFoundError('users', data.username);
+    const thought = await Thought.findById(thoughtId);
+    if (!thought) throw new NotFoundError('thoughts', thoughtId);
+    const sanitizedData = Object.fromEntries(Object.entries(data).filter(([key]) => WRITABLE.includes(key)));
+    thought.reactions.push(sanitizedData);
+    await thought.save();
+    return thought;
+  },
 });

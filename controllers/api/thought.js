@@ -50,6 +50,15 @@ module.exports = (services, {NotFoundError}) => {
       next(err);
     }
   });
-
+  // Create a reaction to a thought by thought ID
+  router.post('/:thoughtId/reactions', async (req, res, next) => {
+    try {
+      const reaction = await services.thought.createReaction(req.params.thoughtId, req.body);
+      if (!reaction) throw new NotFoundError('thoughts', req.params.thoughtId);
+      return res.json(reaction);
+    } catch (err) {
+      next(err);
+    }
+  });
   return router;
 };
