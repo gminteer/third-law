@@ -14,14 +14,21 @@ module.exports = ({User}, {NotFoundError, DuplicateError}) => ({
   },
 
   async create(data) {
-    const sanitizedData = Object.fromEntries(Object.entries(data).filter(([key]) => WRITABLE.includes(key)));
+    const sanitizedData = Object.fromEntries(
+      Object.entries(data).filter(([key]) => WRITABLE.includes(key))
+    );
     const user = await User.create(sanitizedData);
     return user;
   },
 
   async update(userId, data) {
-    const sanitizedData = Object.fromEntries(Object.entries(data).filter(([key]) => WRITABLE.includes(key)));
-    const user = await User.findByIdAndUpdate(userId, sanitizedData, {new: true, runValidators: true});
+    const sanitizedData = Object.fromEntries(
+      Object.entries(data).filter(([key]) => WRITABLE.includes(key))
+    );
+    const user = await User.findByIdAndUpdate(userId, sanitizedData, {
+      new: true,
+      runValidators: true,
+    });
     if (!user) throw new NotFoundError('users', '_id', userId);
     return user;
   },
