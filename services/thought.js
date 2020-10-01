@@ -35,4 +35,37 @@ module.exports = ({User, Thought}, {NotFoundError}) => ({
     await thought.save();
     return thought;
   },
+
+  async getReaction(thoughtId, reactionId) {
+    const thought = await Thought.findById(thoughtId);
+    if (!thought) throw new NotFoundError('thoughts', thoughtId);
+    const reaction = thought.reactions.find((reaction) => reaction.reactionId.toHexString() === reactionId);
+    if (!reaction) throw new NotFoundError('reactions', reactionId);
+    return reaction;
+  },
+
+  async updateReaction(thoughtId, reactionId, data) {
+    if (!data) return;
+    const user = await User.findOne({username: data.username});
+    if (!user) throw new NotFoundError('users', data.username);
+    const thought = await Thought.findById(thoughtId);
+    if (!thought) throw new NotFoundError('thoughts', thoughtId);
+    const reaction = thought.reactions.find((reaction) => reaction.reactionId.toHexString() === reactionId);
+    if (!reaction) throw new NotFoundError('reactions', reactionId);
+    Object.entries(data)
+      .filter(([key]) => WRITABLE.includes(key))
+      .forEach(([key, value]) => (reaction[key] = value));
+    await thought.save();
+    return thought;
+  },
+
+  async deleteReaction(thoughtId, reactionId) {
+    const thought = await Thought.findById(thoughtId);
+    if (!thought) throw new NotFoundError('thoughts', thoughtId);
+    const reaction = thought.reactions.find((reaction) => reaction.reactionId.toHexString() === reactionId);
+    if (!reaction) throw new NotFoundError('reactions', reactionId);
+    thought.reactions.pull(reaction);
+    await thought.save();
+    return thought;
+  },
 });

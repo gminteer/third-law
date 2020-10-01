@@ -31,7 +31,7 @@ module.exports = (services, errors) => {
       }
     }
     if (process.env.NODE_ENV !== 'production') debugger; // If you're reading this you should probably write a handler for this error...
-    return res.status(500).json(err);
+    return res.status(500).json({message: err.message, err});
   });
   return router;
 };

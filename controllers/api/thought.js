@@ -50,15 +50,43 @@ module.exports = (services, {NotFoundError}) => {
       next(err);
     }
   });
-  // Create a reaction to a thought by thought ID
+  // Create a reaction by thought ID
   router.post('/:thoughtId/reactions', async (req, res, next) => {
     try {
       const reaction = await services.thought.createReaction(req.params.thoughtId, req.body);
       if (!reaction) throw new NotFoundError('thoughts', req.params.thoughtId);
+      return res.status(201).append('Location', reaction.reactionId).json(reaction);
+    } catch (err) {
+      next(err);
+    }
+  });
+  // Get a reaction by thought ID & reaction ID
+  router.get('/:thoughtId/reactions/:reactionId', async (req, res, next) => {
+    try {
+      const reaction = await services.thought.getReaction(req.params.thoughtId, req.params.reactionId);
       return res.json(reaction);
     } catch (err) {
       next(err);
     }
   });
+  // Update a reaction by thought ID & reaction ID
+  router.put('/:thoughtId/reactions/:reactionId', async (req, res, next) => {
+    try {
+      const reaction = await services.thought.updateReaction(req.params.thoughtId, req.params.reactionId, req.body);
+      return res.json({message: 'Update successful', reaction});
+    } catch (err) {
+      next(err);
+    }
+  });
+  // Delete a reaction by thought ID & reaction ID
+  router.delete('/:thoughtId/reactions/:reactionId', async (req, res, next) => {
+    try {
+      const reaction = await services.thought.deleteReaction(req.params.thoughtId, req.params.reactionId);
+      return res.json({message: 'Delete successful', reaction});
+    } catch (err) {
+      next(err);
+    }
+  });
+
   return router;
 };
