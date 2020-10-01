@@ -1,11 +1,10 @@
 const router = require('express').Router();
 
-module.exports = (services, {NotFoundError}) => {
+module.exports = (services) => {
   // Get all thoughts
   router.get('/', async (req, res, next) => {
     try {
       const thoughts = await services.thought.getAll();
-      if (!thoughts || thoughts.length < 1) throw new NotFoundError('thoughts');
       return res.json(thoughts);
     } catch (err) {
       next(err);
@@ -26,7 +25,6 @@ module.exports = (services, {NotFoundError}) => {
   router.get('/:thoughtId', async (req, res, next) => {
     try {
       const thought = await services.thought.getById(req.params.thoughtId);
-      if (!thought) throw new NotFoundError('thoughts', req.params.thoughtId);
       return res.json(thought);
     } catch (err) {
       next(err);
@@ -37,7 +35,6 @@ module.exports = (services, {NotFoundError}) => {
   router.put('/:thoughtId', async (req, res, next) => {
     try {
       const thought = await services.thought.updateThought(req.params.thoughtId, req.body);
-      if (!thought) throw new NotFoundError('thoughts', req.params.thoughtId);
       return res.json({message: 'Update successful', thought});
     } catch (err) {
       next(err);
@@ -48,7 +45,6 @@ module.exports = (services, {NotFoundError}) => {
   router.delete('/:thoughtId', async (req, res, next) => {
     try {
       const thought = await services.thought.deleteThought(req.params.thoughtId);
-      if (!thought) throw new NotFoundError('thoughts', req.params.thoughtId);
       return res.json({message: 'Delete successful', thought});
     } catch (err) {
       next(err);
@@ -59,7 +55,6 @@ module.exports = (services, {NotFoundError}) => {
   router.post('/:thoughtId/reactions', async (req, res, next) => {
     try {
       const reaction = await services.thought.createReaction(req.params.thoughtId, req.body);
-      if (!reaction) throw new NotFoundError('thoughts', req.params.thoughtId);
       return res.status(201).append('Location', reaction.reactionId).json(reaction);
     } catch (err) {
       next(err);

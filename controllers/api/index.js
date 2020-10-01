@@ -3,15 +3,24 @@ const router = require('express').Router();
 // Can't find an API in mongodb/mongoose to look this up
 const MONGO_ERR_DUPLICATE_KEY = 11000;
 
-module.exports = (services, errors) => {
-  router.use('/users', require('./user')(services, errors));
-  router.use('/thoughts', require('./thought')(services, errors));
+module.exports = (services) => {
+  router.use('/users', require('./user')(services));
+  router.use('/thoughts', require('./thought')(services));
   // Common API route error handler
   router.use((err, req, res, next) => {
     console.error(err);
     switch (err.name) {
-      case 'NotFoundError':
-        return res.status(404).json({message: err.message});
+      case 'NotFoundError': {
+        return res.status(404).json({message: err.message, details: {name: 'NOT_FOUND', [err.path]: err.query}});
+      }
+      case 'DuplicateError': {
+        return res.status(400).json({message: err.message, details: {name: 'DUPLICATE', [err.path]: err.value}});
+      }
+      case 'CastError': {
+        return res
+          .status(400)
+          .json({message: `Invalid object ID: ${err.value}`, details: {name: 'BAD_ID', id: err.value}});
+      }
       case 'ValidationError': {
         const paths = Object.keys(err.errors);
         return res
@@ -30,7 +39,7 @@ module.exports = (services, errors) => {
         }
       }
     }
-    if (process.env.NODE_ENV !== 'production') debugger; // If you're reading this you should probably write a handler for this error...
+    if (process.env.NODE_ENV !== 'production') debugger; // If you're reading this you should write a better handler for this error...
     return res.status(500).json({message: err.message, err});
   });
   return router;

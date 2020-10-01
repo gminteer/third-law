@@ -1,8 +1,15 @@
 const WRITABLE = ['body', 'username'];
 module.exports = ({User, Thought}, {NotFoundError}) => ({
-  getAll: async () => await Thought.find(),
-  getById: async (_id) => await Thought.findOne({_id}),
-  deleteThought: async (_id) => await Thought.findOneAndDelete({_id}),
+  async getAll() {
+    const thoughts = await Thought.find();
+    if (thoughts.length < 1) throw new NotFoundError('thoughts');
+  },
+
+  async getById(thoughtId) {
+    const thought = await Thought.findById(thoughtId);
+    if (!thought) throw new NotFoundError('thoughts', '_id', thoughtId);
+    return thought;
+  },
 
   async createThought(data) {
     if (!data) return;
@@ -21,6 +28,12 @@ module.exports = ({User, Thought}, {NotFoundError}) => ({
     if (!user) throw new NotFoundError('users', data.username);
     const sanitizedData = Object.fromEntries(Object.entries(data).filter(([key]) => WRITABLE.includes(key)));
     const thought = await Thought.findByIdAndUpdate({_id}, sanitizedData, {new: true, runValidators: true});
+    return thought;
+  },
+
+  async deleteThought(thoughtId) {
+    const thought = await Thought.findByIdAndDelete(thoughtId);
+    if (!thought) throw new NotFoundError('thoughts', '_id', thoughtId);
     return thought;
   },
 

@@ -40,6 +40,7 @@ const Thought = new Schema(
     ...baseThought,
   },
   {
+    id: false,
     toJSON: {virtuals: true, getters: true},
   }
 );

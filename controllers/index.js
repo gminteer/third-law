@@ -1,7 +1,7 @@
 const router = require('express').Router();
 
-module.exports = (services, errors) => {
-  router.use('/api', require('./api')(services, errors));
+module.exports = (services) => {
+  router.use('/api', require('./api')(services));
 
   return router;
 };

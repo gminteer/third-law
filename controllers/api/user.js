@@ -1,11 +1,10 @@
 const router = require('express').Router();
 
-module.exports = (services, {NotFoundError}) => {
+module.exports = (services) => {
   // Get all users
   router.get('/', async (req, res, next) => {
     try {
       const users = await services.user.getAll();
-      if (!users || users.length < 1) throw new NotFoundError('users');
       return res.json(users);
     } catch (err) {
       next(err);
@@ -26,7 +25,6 @@ module.exports = (services, {NotFoundError}) => {
   router.get('/:userId', async (req, res, next) => {
     try {
       const user = await services.user.getById(req.params.userId);
-      if (!user) throw new NotFoundError('users', req.params.userId);
       return res.json(user);
     } catch (err) {
       next(err);
@@ -37,7 +35,6 @@ module.exports = (services, {NotFoundError}) => {
   router.put('/:userId', async (req, res, next) => {
     try {
       const user = await services.user.update(req.params.userId, req.body);
-      if (!user) throw new NotFoundError('users', req.params.userId);
       return res.json({message: 'Update successful', user});
     } catch (err) {
       next(err);
@@ -48,7 +45,6 @@ module.exports = (services, {NotFoundError}) => {
   router.delete('/:userId', async (req, res, next) => {
     try {
       const user = await services.user.delete(req.params.userId);
-      if (!user) throw new NotFoundError('users', req.params.userId);
       return res.json({message: 'Delete successful', user});
     } catch (err) {
       next(err);
@@ -59,7 +55,6 @@ module.exports = (services, {NotFoundError}) => {
   router.post('/:userId/friends/:friendId', async (req, res, next) => {
     try {
       const user = await services.user.addFriend(req.params.userId, req.params.friendId);
-      if (!user) throw new NotFoundError('users', req.params.userId);
       return res.json({message: 'Friend added', user});
     } catch (err) {
       next(err);
@@ -70,7 +65,6 @@ module.exports = (services, {NotFoundError}) => {
   router.delete('/:userId/friends/:friendId', async (req, res, next) => {
     try {
       const user = await services.user.removeFriend(req.params.userId, req.params.friendId);
-      if (!user) throw new NotFoundError('users', req.params.userId);
       return res.json({message: 'Friend removed', user});
     } catch (err) {
       next(err);
