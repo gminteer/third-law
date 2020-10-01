@@ -9,6 +9,9 @@
   "scripts": {
     "test": "echo TODO: implement tests && exit 0"
   },
+  "bin": {
+    "seed": "bin/seed"
+  },
   "nodemonConfig": {
     "ignore": [
       "static/**"
@@ -31,6 +34,7 @@
     "eslint-plugin-prettier": "^3.1.4",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-security": "^1.4.0",
+    "faker": "^5.1.0",
     "nodemon": "^2.0.4",
     "prettier": "^2.1.2"
   },

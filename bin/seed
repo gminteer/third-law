@@ -1,0 +1,30 @@
+#!/usr/bin/env node
+
+require('dotenv').config();
+const faker = require('faker');
+const mongoose = require('mongoose');
+const models = require('../models');
+const errors = require('../errors');
+const services = require('../services')(models, errors);
+
+mongoose.connect(process.env.MONGODB_URI, {useFindAndModify: false, useNewUrlParser: true, useUnifiedTopology: true});
+mongoose.set('debug', true);
+
+const FAKE_USER_COUNT = 8;
+const FAKE_THOUGHT_COUNT = 16;
+(async () => {
+  for (let i = 0; i < FAKE_USER_COUNT; i++) {
+    const username = faker.internet.userName();
+    await services.user.create({
+      username,
+      email: faker.internet.email(),
+    });
+    for (let j = 0; j < FAKE_THOUGHT_COUNT; j++) {
+      await services.thought.createThought({
+        username,
+        body: faker.lorem.sentence(),
+      });
+    }
+  }
+  await mongoose.connection.close();
+})();
