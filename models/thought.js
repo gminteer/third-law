@@ -8,9 +8,9 @@ const baseThought = {
     minlength: 1,
     maxlength: 280,
   },
-  author: {
-    type: Schema.Types.ObjectId,
-    ref: 'User',
+  username: {
+    type: String,
+    required: true,
   },
   createdAt: {
     type: Date,
@@ -29,12 +29,22 @@ const Reaction = new Schema(
   },
   {
     _id: false,
+    toJSON: {getters: true},
   }
 );
 
-const Thought = new Schema({
-  reactions: [Reaction],
-  ...baseThought,
+const Thought = new Schema(
+  {
+    reactions: [Reaction],
+    ...baseThought,
+  },
+  {
+    toJSON: {virtuals: true, getters: true},
+  }
+);
+
+Thought.virtual('reactionCount', function () {
+  return this.reactions.length;
 });
 
-module.exports = model(Thought);
+module.exports = model('Thought', Thought);
