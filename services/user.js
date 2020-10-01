@@ -1,30 +1,19 @@
-const PROPERTIES = ['username', 'email'];
+const WRITABLE = ['username', 'email'];
 
 module.exports = ({User}) => ({
-  async getAll() {
-    const users = await User.find().select('-__v');
-    return users;
-  },
+  getAll: async () => await User.find(),
+  getById: async (_id) => await User.findById(_id).populate({path: 'thoughts'}),
+  delete: async (_id) => await User.findByIdAndDelete(_id),
 
-  async getById(_id) {
-    const user = await User.findOne({_id}).select('-__v');
-    return user;
-  },
-
-  async create(userData) {
-    const sanitizedData = Object.fromEntries(Object.entries(userData).filter(([key]) => PROPERTIES.includes(key)));
+  async create(data) {
+    const sanitizedData = Object.fromEntries(Object.entries(data).filter(([key]) => WRITABLE.includes(key)));
     const user = await User.create(sanitizedData);
     return user;
   },
 
-  async update(_id, userData) {
-    const sanitizedData = Object.fromEntries(Object.entries(userData).filter(([key]) => PROPERTIES.includes(key)));
-    const user = User.findOneAndUpdate({_id}, sanitizedData, {new: true, runValidators: true});
-    return user;
-  },
-
-  async delete(_id) {
-    const user = await User.findOneAndDelete({_id});
+  async update(_id, data) {
+    const sanitizedData = Object.fromEntries(Object.entries(data).filter(([key]) => WRITABLE.includes(key)));
+    const user = await User.findOneAndUpdate({_id}, sanitizedData, {new: true, runValidators: true});
     return user;
   },
 });

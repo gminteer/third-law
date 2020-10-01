@@ -1,17 +1,7 @@
 const router = require('express').Router();
 
-class NotFoundError extends Error {
-  constructor(resource, query) {
-    const message = query ? `No ${resource} found matching ${query}` : `No ${resource} found`;
-    super(message);
-    this.name = 'NotFoundError';
-    this.resource = resource;
-    this.query = query;
-  }
-}
-
-module.exports = (services) => {
-  // TODO
+module.exports = (services, {NotFoundError}) => {
+  // Get all users
   router.get('/', async (req, res, next) => {
     try {
       const users = await services.user.getAll();
@@ -21,6 +11,8 @@ module.exports = (services) => {
       next(err);
     }
   });
+
+  // Create a user
   router.post('/', async (req, res, next) => {
     try {
       const user = await services.user.create(req.body);
@@ -29,6 +21,8 @@ module.exports = (services) => {
       next(err);
     }
   });
+
+  // Get a user by ID
   router.get('/:userId', async (req, res, next) => {
     try {
       const user = await services.user.getById(req.params.userId);
@@ -38,11 +32,23 @@ module.exports = (services) => {
       next(err);
     }
   });
+
+  // Update a user by ID
   router.put('/:userId', async (req, res, next) => {
     try {
       const user = await services.user.update(req.params.userId, req.body);
       if (!user) throw new NotFoundError('users', req.params.userId);
-      return res.json(user);
+      return res.json({message: 'Update successful', user});
+    } catch (err) {
+      next(err);
+    }
+  });
+  // Delete a user by ID
+  router.delete('/:userId', async (req, res, next) => {
+    try {
+      const user = await services.user.delete(req.params.userId);
+      if (!user) throw new NotFoundError('users', req.params.userId);
+      return res.json({message: 'Delete successful', user});
     } catch (err) {
       next(err);
     }

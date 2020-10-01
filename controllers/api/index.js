@@ -3,9 +3,9 @@ const router = require('express').Router();
 // Can't find an API in mongodb/mongoose to look this up
 const MONGO_ERR_DUPLICATE_KEY = 11000;
 
-module.exports = (services) => {
-  router.use('/users', require('./user')(services));
-
+module.exports = (services, errors) => {
+  router.use('/users', require('./user')(services, errors));
+  router.use('/thoughts', require('./thought')(services, errors));
   // Common API route error handler
   router.use((err, req, res, next) => {
     console.error(err);

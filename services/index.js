@@ -1,3 +1,4 @@
-module.exports = (models) => ({
-  user: require('./user')(models),
+module.exports = (models, errors) => ({
+  user: require('./user')(models, errors),
+  thought: require('./thought')(models, errors),
 });
