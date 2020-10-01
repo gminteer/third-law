@@ -43,6 +43,7 @@ module.exports = (services, {NotFoundError}) => {
       next(err);
     }
   });
+
   // Delete a user by ID
   router.delete('/:userId', async (req, res, next) => {
     try {
@@ -53,5 +54,28 @@ module.exports = (services, {NotFoundError}) => {
       next(err);
     }
   });
+
+  // Add a friend by user IDs
+  router.post('/:userId/friends/:friendId', async (req, res, next) => {
+    try {
+      const user = await services.user.addFriend(req.params.userId, req.params.friendId);
+      if (!user) throw new NotFoundError('users', req.params.userId);
+      return res.json({message: 'Friend added', user});
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  // Remove a friend by user IDs
+  router.delete('/:userId/friends/:friendId', async (req, res, next) => {
+    try {
+      const user = await services.user.removeFriend(req.params.userId, req.params.friendId);
+      if (!user) throw new NotFoundError('users', req.params.userId);
+      return res.json({message: 'Friend removed', user});
+    } catch (err) {
+      next(err);
+    }
+  });
+
   return router;
 };

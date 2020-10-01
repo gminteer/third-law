@@ -11,6 +11,7 @@ module.exports = (services, {NotFoundError}) => {
       next(err);
     }
   });
+
   // Create a thought
   router.post('/', async (req, res, next) => {
     try {
@@ -20,6 +21,7 @@ module.exports = (services, {NotFoundError}) => {
       next(err);
     }
   });
+
   // Get a thought by ID
   router.get('/:thoughtId', async (req, res, next) => {
     try {
@@ -30,6 +32,7 @@ module.exports = (services, {NotFoundError}) => {
       next(err);
     }
   });
+
   // Update a thought by ID
   router.put('/:thoughtId', async (req, res, next) => {
     try {
@@ -40,6 +43,7 @@ module.exports = (services, {NotFoundError}) => {
       next(err);
     }
   });
+
   // Delete a thought by ID
   router.delete('/:thoughtId', async (req, res, next) => {
     try {
@@ -50,6 +54,7 @@ module.exports = (services, {NotFoundError}) => {
       next(err);
     }
   });
+
   // Create a reaction by thought ID
   router.post('/:thoughtId/reactions', async (req, res, next) => {
     try {
@@ -60,6 +65,7 @@ module.exports = (services, {NotFoundError}) => {
       next(err);
     }
   });
+
   // Get a reaction by thought ID & reaction ID
   router.get('/:thoughtId/reactions/:reactionId', async (req, res, next) => {
     try {
@@ -69,6 +75,7 @@ module.exports = (services, {NotFoundError}) => {
       next(err);
     }
   });
+
   // Update a reaction by thought ID & reaction ID
   router.put('/:thoughtId/reactions/:reactionId', async (req, res, next) => {
     try {
@@ -78,6 +85,7 @@ module.exports = (services, {NotFoundError}) => {
       next(err);
     }
   });
+
   // Delete a reaction by thought ID & reaction ID
   router.delete('/:thoughtId/reactions/:reactionId', async (req, res, next) => {
     try {
