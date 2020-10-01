@@ -19,7 +19,7 @@ const baseThought = {
   },
 };
 
-const Reaction = new Schema(
+const reactionSchema = new Schema(
   {
     reactionId: {
       type: Schema.Types.ObjectId,
@@ -35,9 +35,9 @@ const Reaction = new Schema(
   }
 );
 
-const Thought = new Schema(
+const thoughtSchema = new Schema(
   {
-    reactions: [Reaction],
+    reactions: [reactionSchema],
     ...baseThought,
   },
   {
@@ -47,8 +47,8 @@ const Thought = new Schema(
   }
 );
 
-Thought.virtual('reactionCount').get(function () {
+thoughtSchema.virtual('reactionCount').get(function () {
   return this.reactions.length;
 });
 
-module.exports = model('Thought', Thought);
+module.exports = model('Thought', thoughtSchema);

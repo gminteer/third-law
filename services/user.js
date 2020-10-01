@@ -1,6 +1,11 @@
+const bcrypt = require('bcrypt');
+
 const WRITABLE = ['username', 'email'];
 
-module.exports = ({User, Thought}, {NotFoundError, DuplicateError}) => ({
+module.exports = (
+  {User, Password, Thought},
+  {NotFoundError, DuplicateError, MissingPathError}
+) => ({
   async getAll() {
     const users = await User.find();
     if (users.length < 1) throw new NotFoundError('users');
@@ -14,10 +19,12 @@ module.exports = ({User, Thought}, {NotFoundError, DuplicateError}) => ({
   },
 
   async create(data) {
+    if (!data || !data.password) throw new MissingPathError('password');
+    const password = await Password.create({password: data.password});
     const sanitizedData = Object.fromEntries(
       Object.entries(data).filter(([key]) => WRITABLE.includes(key))
     );
-    const user = await User.create(sanitizedData);
+    const user = await User.create({password: password._id, ...sanitizedData});
     return user;
   },
 
@@ -59,6 +66,19 @@ module.exports = ({User, Thought}, {NotFoundError, DuplicateError}) => ({
     if (!user.friends.includes(friendId)) throw new NotFoundError('friends', 'friendId', friendId);
     user.friends.pull(friendId);
     await user.save();
+    return user;
+  },
+
+  async checkPassword(username, pwInput) {
+    const user = await User.findOne({username}).populate('password');
+    if (!user) throw new NotFoundError('users', 'username', username);
+    if (await bcrypt.compare(pwInput, user.password.password)) return await User.findById(user._id);
+  },
+
+  async changePassword(userId, newPassword) {
+    const user = await User.findById(userId);
+    if (!user) throw new NotFoundError('users', '_id', userId);
+    const password = Password.findByIdAndUpdate(user.password, {password: newPassword});
     return user;
   },
 });

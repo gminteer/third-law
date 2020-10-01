@@ -22,4 +22,11 @@ class DuplicateError extends ApplicationError {
   }
 }
 
-module.exports = {NotFoundError, DuplicateError};
+class MissingPathError extends ApplicationError {
+  constructor(path) {
+    super(`Missing required path: ${path}`);
+    this.path = path;
+  }
+}
+
+module.exports = {NotFoundError, DuplicateError, MissingPathError};

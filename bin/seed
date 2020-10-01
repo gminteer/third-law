@@ -14,14 +14,14 @@ mongoose.connect(process.env.MONGODB_URI, {
 });
 mongoose.set('debug', true);
 
-const FAKE_USER_COUNT = 8;
-const FAKE_USER_VARIANCE = 6;
-const FAKE_THOUGHT_COUNT = 8;
-const FAKE_THOUGHT_VARIANCE = 6;
-const FAKE_REACTION_COUNT = 8;
-const FAKE_REACTION_VARIANCE = 6;
-const FAKE_FRIEND_COUNT = 4;
-const FAKE_FRIEND_VARIANCE = 4;
+const FAKE_USER_COUNT = 2;
+const FAKE_USER_VARIANCE = 0;
+const FAKE_THOUGHT_COUNT = 4;
+const FAKE_THOUGHT_VARIANCE = 0;
+const FAKE_REACTION_COUNT = 2;
+const FAKE_REACTION_VARIANCE = 0;
+const FAKE_FRIEND_COUNT = 0;
+const FAKE_FRIEND_VARIANCE = 0;
 
 (async () => {
   const users = [];
@@ -31,10 +31,13 @@ const FAKE_FRIEND_VARIANCE = 4;
     i < FAKE_USER_COUNT + Math.floor(Math.random() * FAKE_USER_VARIANCE);
     i++
   ) {
-    const username = faker.internet.userName();
+    const firstName = faker.name.firstName();
+    const lastName = faker.name.lastName();
+    const username = faker.internet.userName(firstName, lastName);
     const user = await services.user.create({
       username,
-      email: faker.internet.email(),
+      password: 'password',
+      email: faker.internet.email(firstName, lastName),
     });
     users.push(user);
     for (
