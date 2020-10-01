@@ -8,6 +8,7 @@ const controllers = require('./controllers')(services);
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
+app.set('view engine', 'pug');
 app.use(controllers);
 
 module.exports = app;

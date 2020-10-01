@@ -1,7 +1,10 @@
 const router = require('express').Router();
 
 module.exports = (services) => {
-  router.use('/api', require('./api')(services));
-  router.use('/', require('./html')(services));
+  // TODO
+  router.get('/', (req, res) => {
+    return res.render('index.pug');
+  });
+
   return router;
 };
