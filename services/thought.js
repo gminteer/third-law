@@ -29,7 +29,7 @@ module.exports = ({User, Thought}, {NotFoundError}) => ({
       {_id},
       {body},
       {new: true, runValidators: true}
-    );
+    ).populate('author');
     return thought;
   },
 
@@ -51,31 +51,22 @@ module.exports = ({User, Thought}, {NotFoundError}) => ({
 
   async createReaction(thoughtId, data) {
     if (!data) return;
-    const user = await User.findOne({username: data.username});
-    if (!user) throw new NotFoundError('users', 'username', data.username);
     const thought = await Thought.findById(thoughtId);
     if (!thought) throw new NotFoundError('thoughts', '_id', thoughtId);
-    const sanitizedData = Object.fromEntries(
-      Object.entries(data).filter(([key]) => WRITABLE.includes(key))
-    );
-    thought.reactions.push(sanitizedData);
+    thought.reactions.push(data);
     await thought.save();
     return thought;
   },
 
   async updateReaction(thoughtId, reactionId, data) {
     if (!data) return;
-    const user = await User.findOne({username: data.username});
-    if (!user) throw new NotFoundError('users', 'username', data.username);
     const thought = await Thought.findById(thoughtId);
     if (!thought) throw new NotFoundError('thoughts', '_id', thoughtId);
     const reaction = thought.reactions.find(
       (reaction) => reaction.reactionId.toHexString() === reactionId
     );
     if (!reaction) throw new NotFoundError('reactions', 'reactionId', reactionId);
-    Object.entries(data)
-      .filter(([key]) => WRITABLE.includes(key))
-      .forEach(([key, value]) => (reaction[key] = value));
+    reaction.body = data.body;
     await thought.save();
     return reaction;
   },

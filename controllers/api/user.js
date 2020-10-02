@@ -34,7 +34,7 @@ module.exports = (services, {auth}) => {
   /**
    * @deprecated use session endpoint
    */
-  router.put('/:userId', auth.mustBeOwner, async (req, res, next) => {
+  router.put('/:userId', auth.mustOwnEndpoint, async (req, res, next) => {
     try {
       const user = await services.user.update(req.params.userId, req.body);
       return res.json({message: 'Update successful', user});
@@ -47,7 +47,7 @@ module.exports = (services, {auth}) => {
   /**
    * @deprecated use session endpoint
    */
-  router.delete('/:userId', auth.mustBeOwner, async (req, res, next) => {
+  router.delete('/:userId', auth.mustOwnEndpoint, async (req, res, next) => {
     try {
       const user = await services.user.delete(req.params.userId);
       return res.json({message: 'Delete successful', user});
@@ -60,7 +60,7 @@ module.exports = (services, {auth}) => {
   /**
    * @deprecated use session endpoint
    */
-  router.post('/:userId/friends/:friendId', auth.mustBeOwner, async (req, res, next) => {
+  router.post('/:userId/friends/:friendId', auth.mustOwnEndpoint, async (req, res, next) => {
     try {
       const {operation, user} = await services.user.toggleFriend(
         req.params.userId,
@@ -77,7 +77,7 @@ module.exports = (services, {auth}) => {
   /**
    * @deprecated use session endpoint
    */
-  router.delete('/:userId/friends/:friendId', auth.mustBeOwner, async (req, res, next) => {
+  router.delete('/:userId/friends/:friendId', auth.mustOwnEndpoint, async (req, res, next) => {
     try {
       const {operation, user} = await services.user.toggleFriend(
         req.params.userId,

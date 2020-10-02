@@ -14,7 +14,8 @@ module.exports = (services, {auth}) => {
   // Create a thought
   router.post('/', auth.mustBeLoggedIn, async (req, res, next) => {
     try {
-      const thought = await services.thought.createThought(req.body);
+      const {body} = req.body;
+      const thought = await services.thought.createThought({body, author: req.session.userId});
       return res.status(201).append('Location', thought._id).json(thought);
     } catch (err) {
       next(err);
@@ -32,9 +33,10 @@ module.exports = (services, {auth}) => {
   });
 
   // Update a thought by ID
-  router.put('/:thoughtId', async (req, res, next) => {
+  router.put('/:thoughtId', auth.mustOwnThought, async (req, res, next) => {
     try {
-      const thought = await services.thought.updateThought(req.params.thoughtId, req.body);
+      const {body} = req.body;
+      const thought = await services.thought.updateThought(req.params.thoughtId, body);
       return res.json({message: 'Update successful', thought});
     } catch (err) {
       next(err);
@@ -42,7 +44,7 @@ module.exports = (services, {auth}) => {
   });
 
   // Delete a thought by ID
-  router.delete('/:thoughtId', async (req, res, next) => {
+  router.delete('/:thoughtId', auth.mustOwnThought, async (req, res, next) => {
     try {
       const thought = await services.thought.deleteThought(req.params.thoughtId);
       return res.json({message: 'Delete successful', thought});
@@ -52,9 +54,13 @@ module.exports = (services, {auth}) => {
   });
 
   // Create a reaction by thought ID
-  router.post('/:thoughtId/reactions', async (req, res, next) => {
+  router.post('/:thoughtId/reactions', auth.mustBeLoggedIn, async (req, res, next) => {
     try {
-      const reaction = await services.thought.createReaction(req.params.thoughtId, req.body);
+      const {body} = req.body;
+      const reaction = await services.thought.createReaction(req.params.thoughtId, {
+        body,
+        author: req.session.userId,
+      });
       return res.status(201).append('Location', reaction.reactionId).json(reaction);
     } catch (err) {
       next(err);
@@ -75,7 +81,7 @@ module.exports = (services, {auth}) => {
   });
 
   // Update a reaction by thought ID & reaction ID
-  router.put('/:thoughtId/reactions/:reactionId', async (req, res, next) => {
+  router.put('/:thoughtId/reactions/:reactionId', auth.mustOwnReaction, async (req, res, next) => {
     try {
       const reaction = await services.thought.updateReaction(
         req.params.thoughtId,
@@ -89,17 +95,21 @@ module.exports = (services, {auth}) => {
   });
 
   // Delete a reaction by thought ID & reaction ID
-  router.delete('/:thoughtId/reactions/:reactionId', async (req, res, next) => {
-    try {
-      const reaction = await services.thought.deleteReaction(
-        req.params.thoughtId,
-        req.params.reactionId
-      );
-      return res.json({message: 'Delete successful', reaction});
-    } catch (err) {
-      next(err);
+  router.delete(
+    '/:thoughtId/reactions/:reactionId',
+    auth.mustOwnReaction,
+    async (req, res, next) => {
+      try {
+        const reaction = await services.thought.deleteReaction(
+          req.params.thoughtId,
+          req.params.reactionId
+        );
+        return res.json({message: 'Delete successful', reaction});
+      } catch (err) {
+        next(err);
+      }
     }
-  });
+  );
 
   return router;
 };
