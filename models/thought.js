@@ -8,8 +8,9 @@ const baseThought = {
     minlength: 1,
     maxlength: 280,
   },
-  username: {
-    type: String,
+  author: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
     required: true,
   },
   createdAt: {

@@ -46,7 +46,7 @@ const FAKE_FRIEND_VARIANCE = 0;
       j++
     ) {
       const thought = await services.thought.createThought({
-        username,
+        author: user._id,
         body: faker.lorem.sentence(),
       });
       thoughts.push(thought);
@@ -59,7 +59,7 @@ const FAKE_FRIEND_VARIANCE = 0;
       i++
     ) {
       thought.reactions.push({
-        username: users[Math.floor(Math.random() * users.length)].username,
+        author: users[Math.floor(Math.random() * users.length)]._id,
         body: faker.lorem.words(),
       });
     }

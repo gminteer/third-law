@@ -1,6 +1,6 @@
 const router = require('express').Router();
 
-module.exports = (services, middleware) => {
+module.exports = (services, {auth}) => {
   // Get all thoughts
   router.get('/', async (req, res, next) => {
     try {
@@ -12,7 +12,7 @@ module.exports = (services, middleware) => {
   });
 
   // Create a thought
-  router.post('/', async (req, res, next) => {
+  router.post('/', auth.mustBeLoggedIn, async (req, res, next) => {
     try {
       const thought = await services.thought.createThought(req.body);
       return res.status(201).append('Location', thought._id).json(thought);

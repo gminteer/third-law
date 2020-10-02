@@ -1,5 +1,3 @@
-const WRITABLE = ['body', 'username'];
-
 module.exports = ({User, Thought}, {NotFoundError}) => ({
   async getAll() {
     const thoughts = await Thought.find();
@@ -15,28 +13,23 @@ module.exports = ({User, Thought}, {NotFoundError}) => ({
 
   async createThought(data) {
     if (!data) return;
-    const user = await User.findOne({username: data.username});
-    if (!user) throw new NotFoundError('users', 'username', data.username);
     const sanitizedData = Object.fromEntries(
-      Object.entries(data).filter(([key]) => WRITABLE.includes(key))
+      Object.entries(data).filter(([key]) => ['author', 'body'].includes(key))
     );
     const thought = await Thought.create(sanitizedData);
-    user.thoughts.push(thought._id);
+    const user = await User.findById(data.author);
+    if (!user) throw new NotFoundError('users', '_id', data.author);
+    await user.thoughts.push(thought._id);
     await user.save();
     return thought;
   },
 
-  async updateThought(_id, data) {
-    if (!data) return;
-    const user = await User.findOne({username: data.username});
-    if (!user) throw new NotFoundError('users', 'username', data.username);
-    const sanitizedData = Object.fromEntries(
-      Object.entries(data).filter(([key]) => WRITABLE.includes(key))
+  async updateThought(_id, body) {
+    const thought = await Thought.findByIdAndUpdate(
+      {_id},
+      {body},
+      {new: true, runValidators: true}
     );
-    const thought = await Thought.findByIdAndUpdate({_id}, sanitizedData, {
-      new: true,
-      runValidators: true,
-    });
     return thought;
   },
 

@@ -44,7 +44,7 @@ module.exports = {
       // extends: ['plugin:compat/recommended'],
     },
     {
-      files: ['bin/seed*'],
+      files: ['bin/seed'],
       rules: {
         'node/no-unpublished-require': ['error', {allowModules: devDependencies}],
       },
