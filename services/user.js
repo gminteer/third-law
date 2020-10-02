@@ -1,20 +1,39 @@
 const bcrypt = require('bcrypt');
 
 const WRITABLE = ['username', 'email'];
+const FRIEND_OPS = ['add', 'remove'];
 
 module.exports = (
   {User, Password, Thought},
-  {NotFoundError, DuplicateError, MissingPathError}
+  {NotFoundError, DuplicateError, MissingPathError, MissingSelectorError}
 ) => ({
-  async getAll() {
-    const users = await User.find();
-    if (users.length < 1) throw new NotFoundError('users');
-    return users;
-  },
-
-  async getById(userId) {
-    const user = await User.findById(userId).populate('thoughts').populate('friends');
-    if (!user) throw new NotFoundError('users', '_id', userId);
+  async get(
+    {_id = null, username = null, email = null} = {},
+    {includeThoughts = false, includeFriends = false} = {}
+  ) {
+    if (!_id && !username && !email) {
+      let users = User.find();
+      if (includeThoughts) users = users.populate('thoughts');
+      if (includeFriends) users = users.populate('friends');
+      if (users.length < 1) throw new NotFoundError('users');
+      return users;
+    }
+    let user;
+    let error;
+    if (_id) {
+      user = User.findById(_id);
+      error = new NotFoundError('users', '_id', _id);
+    } else if (username) {
+      user = User.findOne({username});
+      error = new NotFoundError('users', 'username', username);
+    } else if (email) {
+      user = User.findOne({email});
+      error = new NotFoundError('users', 'email', email);
+    }
+    if (includeThoughts) user = user.populate('thoughts');
+    if (includeFriends) user = user.populate('friends');
+    user = await user;
+    if (!user) throw error;
     return user;
   },
 
@@ -47,26 +66,43 @@ module.exports = (
     return user;
   },
 
-  async addFriend(userId, friendId) {
-    const friend = await User.findById(friendId);
-    if (!friend) throw new NotFoundError('users', 'friendId', friendId);
-    const user = await User.findById(userId);
+  async toggleFriend(
+    userId,
+    {_id = null, username = null, email = null} = {},
+    {forceOperation = null} = {}
+  ) {
+    if (forceOperation && !FRIEND_OPS.includes(forceOperation))
+      throw new TypeError(`forceOperation must be one of: ${FRIEND_OPS}`);
+    if (!_id && !username && !email) throw new MissingSelectorError(['id', 'username', 'email']);
+    let friend;
+    let error;
+    if (_id) {
+      friend = await User.findById(_id);
+      error = new NotFoundError('users', '_id', _id);
+    } else if (username) {
+      friend = await User.findOne({username});
+      error = new NotFoundError('users', 'username', username);
+    } else if (email) {
+      friend = await User.findOne({email});
+      error = new NotFoundError('users', 'email', email);
+    }
+    if (!friend) throw error;
+    const user = await User.findOne({_id: userId});
     if (!user) throw new NotFoundError('users', '_id', userId);
-    if (user.friends.includes(friendId)) throw new DuplicateError('friends', friendId);
-    user.friends.push(friendId);
+    let operation;
+    if (user.friends.includes(friend._id)) {
+      if (forceOperation && forceOperation === 'add')
+        throw new DuplicateError('friends', friend._id);
+      await user.friends.pull(friend._id);
+      operation = 'removed';
+    } else {
+      if (forceOperation && forceOperation === 'remove')
+        throw new NotFoundError('friends', '_id', friend._id);
+      await user.friends.push(friend._id);
+      operation = 'added';
+    }
     await user.save();
-    return user;
-  },
-
-  async removeFriend(userId, friendId) {
-    const friend = await User.findById(friendId);
-    if (!friend) throw new NotFoundError('users', 'friendId', friendId);
-    const user = await User.findById(userId);
-    if (!user) throw new NotFoundError('users', '_id', userId);
-    if (!user.friends.includes(friendId)) throw new NotFoundError('friends', 'friendId', friendId);
-    user.friends.pull(friendId);
-    await user.save();
-    return user;
+    return {operation, user};
   },
 
   async checkPassword(username, pwInput) {
@@ -78,7 +114,7 @@ module.exports = (
   async changePassword(userId, newPassword) {
     const user = await User.findById(userId);
     if (!user) throw new NotFoundError('users', '_id', userId);
-    const password = Password.findByIdAndUpdate(user.password, {password: newPassword});
+    await Password.findByIdAndUpdate(user.password, {password: newPassword});
     return user;
   },
 });

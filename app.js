@@ -6,7 +6,8 @@ const cryptoRandomString = require('crypto-random-string');
 const errors = require('./errors');
 const models = require('./models');
 const services = require('./services')(models, errors);
-const controllers = require('./controllers')(services);
+const middleware = require('./middleware')(services, errors);
+const controllers = require('./controllers')(services, middleware);
 
 const app = express();
 const store = new MongoDBStore({

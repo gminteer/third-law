@@ -1,7 +1,7 @@
 const router = require('express').Router();
 
-module.exports = (services) => {
-  router.use('/api', require('./api')(services));
-  router.use('/', require('./html')(services));
+module.exports = (services, middleware) => {
+  router.use('/api', require('./api')(services, middleware));
+  router.use('/', require('./html')(services, middleware));
   return router;
 };

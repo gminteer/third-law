@@ -1,10 +1,9 @@
 const router = require('express').Router();
 
-module.exports = (services) => {
-  router.use('/users', require('./user')(services));
-  router.use('/thoughts', require('./thought')(services));
-  router.use('/session', require('./session')(services));
-  // Common API route error handler
+module.exports = (services, middleware) => {
+  router.use('/users', require('./user')(services, middleware));
+  router.use('/thoughts', require('./thought')(services, middleware));
+  router.use('/session', require('./session')(services, middleware));
   router.use(require('./error-handler'));
   return router;
 };

@@ -25,8 +25,31 @@ class DuplicateError extends ApplicationError {
 class MissingPathError extends ApplicationError {
   constructor(path) {
     super(`Missing required path: ${path}`);
+    this.name = 'MissingPathError';
     this.path = path;
   }
 }
 
-module.exports = {NotFoundError, DuplicateError, MissingPathError};
+class MissingSelectorError extends ApplicationError {
+  constructor(paths) {
+    super(`Missing selector - need one of the following paths: ${paths}`);
+    this.name = 'MissingSelectorError';
+    this.paths = paths;
+  }
+}
+
+const AUTH_MESSAGES = {
+  NOT_LOGGED_IN: 'Must be logged in',
+  NOT_ANONYMOUS: 'Must not be logged in',
+  NOT_OWNER: 'Must be resource owner',
+};
+
+class AuthError extends ApplicationError {
+  constructor(type) {
+    super(AUTH_MESSAGES[type]);
+    this.name = 'AuthError';
+    this.type = type;
+  }
+}
+
+module.exports = {NotFoundError, DuplicateError, MissingPathError, MissingSelectorError, AuthError};

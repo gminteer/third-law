@@ -16,6 +16,9 @@ module.exports = (err, req, res, next) => {
         details: {name: 'DUPLICATE', [err.path]: err.value},
       });
     }
+    case 'AuthError': {
+      return res.status(400).json({message: err.message});
+    }
     case 'CastError': {
       return res.status(400).json({
         message: `Invalid object ID: ${err.value}`,

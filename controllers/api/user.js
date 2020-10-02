@@ -1,11 +1,18 @@
 const router = require('express').Router();
 
-module.exports = (services) => {
-  // Get all users
-  router.get('/', async (req, res, next) => {
+module.exports = (services, {auth}) => {
+  // Get all users or get one user by identifier
+  router.get(['/', '/:_id', '/name/:username', '/email/:email'], async (req, res, next) => {
     try {
-      const users = await services.user.getAll();
-      return res.json(users);
+      const options = {};
+      Object.values(req.params).forEach((param) => {
+        if (param) {
+          options.includeFriends = true;
+          options.includeThoughts = true;
+        }
+      });
+      const user = await services.user.get(req.params, options);
+      return res.json(user);
     } catch (err) {
       next(err);
     }
@@ -15,24 +22,19 @@ module.exports = (services) => {
   router.post('/', async (req, res, next) => {
     try {
       const user = await services.user.create(req.body);
+      req.session.isLoggedIn = true;
+      req.session.userId = user._id.toHexString();
       return res.status(201).append('Location', user._id).json(user);
     } catch (err) {
       next(err);
     }
   });
 
-  // Get a user by ID
-  router.get('/:userId', async (req, res, next) => {
-    try {
-      const user = await services.user.getById(req.params.userId);
-      return res.json(user);
-    } catch (err) {
-      next(err);
-    }
-  });
-
   // Update a user by ID
-  router.put('/:userId', async (req, res, next) => {
+  /**
+   * @deprecated use session endpoint
+   */
+  router.put('/:userId', auth.mustBeOwner, async (req, res, next) => {
     try {
       const user = await services.user.update(req.params.userId, req.body);
       return res.json({message: 'Update successful', user});
@@ -42,7 +44,10 @@ module.exports = (services) => {
   });
 
   // Delete a user by ID
-  router.delete('/:userId', async (req, res, next) => {
+  /**
+   * @deprecated use session endpoint
+   */
+  router.delete('/:userId', auth.mustBeOwner, async (req, res, next) => {
     try {
       const user = await services.user.delete(req.params.userId);
       return res.json({message: 'Delete successful', user});
@@ -52,20 +57,34 @@ module.exports = (services) => {
   });
 
   // Add a friend by user IDs
-  router.post('/:userId/friends/:friendId', async (req, res, next) => {
+  /**
+   * @deprecated use session endpoint
+   */
+  router.post('/:userId/friends/:friendId', auth.mustBeOwner, async (req, res, next) => {
     try {
-      const user = await services.user.addFriend(req.params.userId, req.params.friendId);
-      return res.json({message: 'Friend added', user});
+      const {operation, user} = await services.user.toggleFriend(
+        req.params.userId,
+        {_id: req.params.friendId},
+        {forceOperation: 'add'}
+      );
+      return res.json({message: `Friend ${operation}`, user});
     } catch (err) {
       next(err);
     }
   });
 
   // Remove a friend by user IDs
-  router.delete('/:userId/friends/:friendId', async (req, res, next) => {
+  /**
+   * @deprecated use session endpoint
+   */
+  router.delete('/:userId/friends/:friendId', auth.mustBeOwner, async (req, res, next) => {
     try {
-      const user = await services.user.removeFriend(req.params.userId, req.params.friendId);
-      return res.json({message: 'Friend removed', user});
+      const {operation, user} = await services.user.toggleFriend(
+        req.params.userId,
+        {_id: req.params.friendId},
+        {forceOperation: 'remove'}
+      );
+      return res.json({message: `Friend ${operation}`, user});
     } catch (err) {
       next(err);
     }

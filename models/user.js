@@ -20,7 +20,7 @@ const userSchema = new Schema(
         collation: {locale: 'en', strength: 2},
       },
     },
-    password: {type: Schema.Types.ObjectId, ref: 'Password'},
+    password: {type: Schema.Types.ObjectId, ref: 'Password', select: false},
     thoughts: [{type: Schema.Types.ObjectId, ref: 'Thought'}],
     friends: [{type: Schema.Types.ObjectId, ref: 'User'}],
   },

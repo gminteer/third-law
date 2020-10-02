@@ -1,6 +1,6 @@
 const router = require('express').Router();
 
-module.exports = (services) => {
+module.exports = (services, middleware) => {
   // Get all thoughts
   router.get('/', async (req, res, next) => {
     try {
