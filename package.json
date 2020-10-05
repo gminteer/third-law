@@ -1,5 +1,5 @@
 {
-  "name": "insert-name-here",
+  "name": "third-law",
   "version": "1.0.0",
   "description": "",
   "engines": {
@@ -7,7 +7,9 @@
   },
   "main": "server.js",
   "scripts": {
-    "test": "echo TODO: implement tests && exit 0"
+    "test": "echo TODO: implement tests && exit 0",
+    "start": "node server.js",
+    "start:dev": "nodemon"
   },
   "bin": {
     "seed": "bin/seed"
@@ -17,13 +19,13 @@
       "static/**"
     ]
   },
-  "repository": "github:gminteer/insert-name-here",
+  "repository": "github:gminteer/third-law",
   "author": "Greg Minteer <gminteer@gmail.com> (https://gminteer.github.io)",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/gminteer/insert-name-here/issues"
+    "url": "https://github.com/gminteer/third-law/issues"
   },
-  "homepage": "https://github.com/gminteer/insert-name-here#readme",
+  "homepage": "https://github.com/gminteer/third-law#readme",
   "devDependencies": {
     "eslint": "^7.10.0",
     "eslint-config-google": "^0.14.0",

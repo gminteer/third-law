@@ -1,6 +1,6 @@
-class ApplicationError extends Error {}
+class NewtonianError extends Error {}
 
-class NotFoundError extends ApplicationError {
+class NotFoundError extends NewtonianError {
   constructor(resource, path, query) {
     const message = query
       ? `No ${resource} found matching ${path}: ${query}`
@@ -13,7 +13,7 @@ class NotFoundError extends ApplicationError {
   }
 }
 
-class DuplicateError extends ApplicationError {
+class DuplicateError extends NewtonianError {
   constructor(path, value) {
     super(`${path} already contains ${value}`);
     this.name = 'DuplicateError';
@@ -22,7 +22,7 @@ class DuplicateError extends ApplicationError {
   }
 }
 
-class MissingPathError extends ApplicationError {
+class MissingPathError extends NewtonianError {
   constructor(path) {
     super(`Missing required path: ${path}`);
     this.name = 'MissingPathError';
@@ -30,7 +30,7 @@ class MissingPathError extends ApplicationError {
   }
 }
 
-class MissingSelectorError extends ApplicationError {
+class MissingSelectorError extends NewtonianError {
   constructor(paths) {
     super(`Missing selector - need one of the following paths: ${paths}`);
     this.name = 'MissingSelectorError';
@@ -44,7 +44,7 @@ const AUTH_MESSAGES = {
   NOT_OWNER: 'Must be resource owner',
 };
 
-class AuthError extends ApplicationError {
+class AuthError extends NewtonianError {
   constructor(type) {
     super(AUTH_MESSAGES[type]);
     this.name = 'AuthError';

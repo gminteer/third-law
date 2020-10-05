@@ -4,7 +4,7 @@ module.exports = (services, {auth}) => {
   // Get all thoughts
   router.get('/', async (req, res, next) => {
     try {
-      const thoughts = await services.thought.getAll();
+      const thoughts = await services.thought.getThought();
       return res.json(thoughts);
     } catch (err) {
       next(err);
@@ -25,7 +25,7 @@ module.exports = (services, {auth}) => {
   // Get a thought by ID
   router.get('/:thoughtId', async (req, res, next) => {
     try {
-      const thought = await services.thought.getById(req.params.thoughtId);
+      const thought = await services.thought.getThought(req.params.thoughtId);
       return res.json(thought);
     } catch (err) {
       next(err);

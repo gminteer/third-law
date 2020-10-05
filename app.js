@@ -1,7 +1,8 @@
+const path = require('path');
+const cryptoRandomString = require('crypto-random-string');
 const express = require('express');
 const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
-const cryptoRandomString = require('crypto-random-string');
 
 const errors = require('./errors');
 const models = require('./models');
@@ -26,6 +27,7 @@ async function sessionSecret() {
 module.exports = async () => {
   app.use(express.json());
   app.use(express.urlencoded({extended: true}));
+  app.use(express.static(path.join(__dirname, 'static')));
   app.use(
     session({
       secret: await sessionSecret(),

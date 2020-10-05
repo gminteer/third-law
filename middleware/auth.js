@@ -13,18 +13,24 @@ module.exports = (services, {NotFoundError, AuthError}) => ({
     next();
   },
   async mustOwnThought(req, res, next) {
-    const thought = await services.thought.getById(req.params.thoughtId);
-    if (!thought) throw new NotFoundError('thoughts', '_id', req.params.thoughtId);
-    if (req.session.userId !== thought.author.toHexString()) throw new AuthError('NOT_OWNER');
-    next();
+    try {
+      const thought = await services.thought.getThought(req.params.thoughtId);
+      if (req.session.userId !== thought.author._id.toHexString()) throw new AuthError('NOT_OWNER');
+      next();
+    } catch (err) {
+      next(err);
+    }
   },
   async mustOwnReaction(req, res, next) {
-    const reaction = await services.thought.getReaction(
-      req.params.thoughtId,
-      req.params.reactionId
-    );
-    if (!reaction) throw new NotFoundError('reactions', 'reactionId', req.params.reactionId);
-    if (req.session.userId !== reaction.author.toHexString()) throw new AuthError('NOT_OWNER');
-    next();
+    try {
+      const reaction = await services.thought.getReaction(
+        req.params.thoughtId,
+        req.params.reactionId
+      );
+      if (req.session.userId !== reaction.author.toHexString()) throw new AuthError('NOT_OWNER');
+      next();
+    } catch (err) {
+      next(err);
+    }
   },
 });

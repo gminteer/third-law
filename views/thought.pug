@@ -5,6 +5,4 @@ html(lang="en")
   +head('New Page 1.html')
 body
   include includes/navbar.pug
-  h1 Latest thoughts
-  each thought in thoughts
-    +thought(thought, false)
+  +thought(thought, true)

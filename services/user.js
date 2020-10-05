@@ -12,9 +12,10 @@ module.exports = (
     {includeThoughts = false, includeFriends = false} = {}
   ) {
     if (!_id && !username && !email) {
-      let users = User.find();
-      if (includeThoughts) users = users.populate('thoughts');
-      if (includeFriends) users = users.populate('friends');
+      let users = User.find().select('username');
+      if (includeThoughts)
+        users = users.populate({path: 'thoughts', select: ['body', 'createdAt']});
+      if (includeFriends) users = users.populate({path: 'friends', select: 'username'});
       if (users.length < 1) throw new NotFoundError('users');
       return users;
     }
@@ -30,8 +31,14 @@ module.exports = (
       user = User.findOne({email});
       error = new NotFoundError('users', 'email', email);
     }
-    if (includeThoughts) user = user.populate('thoughts');
-    if (includeFriends) user = user.populate('friends');
+    if (includeThoughts) {
+      user = user.populate({
+        path: 'thoughts',
+        select: ['body', 'reactions', 'createdAt'],
+        populate: {path: 'reactions.author', select: 'username'},
+      });
+    }
+    if (includeFriends) user = user.populate({path: 'friends', select: 'username'});
     user = await user;
     if (!user) throw error;
     return user;
@@ -73,7 +80,7 @@ module.exports = (
   ) {
     if (forceOperation && !FRIEND_OPS.includes(forceOperation))
       throw new TypeError(`forceOperation must be one of: ${FRIEND_OPS}`);
-    if (!_id && !username && !email) throw new MissingSelectorError(['id', 'username', 'email']);
+    if (!_id && !username && !email) throw new MissingSelectorError(['_id', 'username', 'email']);
     let friend;
     let error;
     if (_id) {

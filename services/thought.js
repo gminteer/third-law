@@ -1,12 +1,20 @@
 module.exports = ({User, Thought}, {NotFoundError}) => ({
-  async getAll() {
-    const thoughts = await Thought.find();
-    if (thoughts.length < 1) throw new NotFoundError('thoughts');
-    return thoughts;
-  },
-
-  async getById(thoughtId) {
-    const thought = await Thought.findById(thoughtId);
+  async getThought(thoughtId) {
+    if (!thoughtId) {
+      const thoughts = await Thought.find()
+        .populate({path: 'author', select: 'username'})
+        .populate({path: 'reactions.author', select: 'username'})
+        .sort({createdAt: -1})
+        .limit(12);
+      if (thoughts.length < 1) throw new NotFoundError('thoughts');
+      return thoughts;
+    }
+    const thought = await Thought.findById(thoughtId)
+      .populate({
+        path: 'author',
+        select: 'username',
+      })
+      .populate({path: 'reactions.author', select: 'username'});
     if (!thought) throw new NotFoundError('thoughts', '_id', thoughtId);
     return thought;
   },

@@ -3,4 +3,7 @@ header
   nav
     ul
       li
-        a(href='#') Dashboard
+        if session.isLoggedIn
+          a(href='/dashboard') Dashboard
+        else
+          a(href='/login') Login

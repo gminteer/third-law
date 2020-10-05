@@ -1,0 +1,14 @@
+mixin thought(thought, showReactions)
+  div
+    p #{thought.body}
+    div.footer
+      p by #{thought.author.username} @ #{thought.createdAt} 
+      unless showReactions
+        p #{thought.reactionCount} reactions
+          a(href=`/thoughts/${thought._id}`) See full thread
+    if showReactions
+      div
+        each reaction of thought.reactions
+          p #{reaction.body}
+          div footer
+            p by #{reaction.author.username} @ #{reaction.createdAt}

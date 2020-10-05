@@ -1,0 +1,12 @@
+include mixins/head.pug
+
+html(lang="en")
+  +head('New Page 1.html')
+body
+  form(id='login-form')
+    label(for='username') Username
+    input(type='text', name='username', id='username')
+    label(for='password') Password
+    input(type='password' name='password' id='password')
+    button(type='submit') Submit
+  script(src='/assets/js/login.js')

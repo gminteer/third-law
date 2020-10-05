@@ -24,6 +24,10 @@ module.exports = (services, {auth}) => {
     return res.json({message: 'Logout successful'});
   });
 
+  router.get('/me', (req, res) => {
+    return res.append('Location', `/api/users/${req.session.userId}`).sendStatus(307);
+  });
+
   router.get('/friends', async (req, res, next) => {
     try {
       const user = await services.user.get({_id: req.session.userId}, {includeFriends: true});
